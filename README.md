@@ -146,6 +146,34 @@ If a real inbox is wanted later, point the `<form>` at a form service
 
 ## Deploying
 
+Pushing to `main` runs two independent workflows.
+
+### 1. GitHub Pages — the preview
+
+`.github/workflows/pages.yml` publishes every push to
+
+> <https://josebanzuma1-cell.github.io/UTRAIN-DRIVING-SCHOOL/>
+
+which is there so the site can be looked at and shared before the real hosting
+is ready. Pages serves from a sub-path, which works only because every `src`
+and `href` in the site is relative — **a single leading slash on an asset path
+will break the preview while looking fine on the real domain.**
+
+The workflow turns Pages on by itself on its first run. If that step fails on
+permissions, set it by hand once under **Settings → Pages → Source → GitHub
+Actions**, then re-run the workflow from the Actions tab. The source must be
+"GitHub Actions", not "Deploy from a branch".
+
+`_design/`, `tools/`, `server.js` and this README are left out of what gets
+published.
+
+Note that the canonical tags, `robots.txt` and `sitemap.xml` all point at
+`utraindrivingschool.com`, so the preview will not compete with the real site
+in search. That is deliberate — but it does mean those three need updating
+when the real domain is settled.
+
+### 2. Hostinger — the real site
+
 Pushing to `main` uploads the site to Hostinger over FTPS via
 `.github/workflows/deploy-hostinger.yml` — the same workflow used by the other
 school sites in this folder.

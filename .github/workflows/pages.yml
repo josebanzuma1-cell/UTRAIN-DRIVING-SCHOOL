@@ -1,0 +1,82 @@
+# Publishes the site to GitHub Pages, so there is a live URL to look at and
+# share before the Hostinger hosting is wired up.
+#
+#   https://josebanzuma1-cell.github.io/UTRAIN-DRIVING-SCHOOL/
+#
+# "Configure Pages" runs with enablement: true, which turns Pages on through
+# the API on the first run. If that step fails with a permissions error, set it
+# by hand once — Settings > Pages > Source > GitHub Actions — and re-run the
+# workflow from the Actions tab. The source MUST be "GitHub Actions" and not
+# "Deploy from a branch": with the branch source winning, deploy-pages fails
+# with "Pages site configured to build from branch".
+#
+# This runs alongside deploy-hostinger.yml. The two are independent — one
+# publishes a preview on github.io, the other uploads to the real host — and
+# neither waits on the other.
+#
+# Pages serves the site from a sub-path (/UTRAIN-DRIVING-SCHOOL/), which works
+# only because every src and href in the site is relative. Keep it that way:
+# a single leading slash on an asset path will break the preview while looking
+# perfectly fine on the real domain.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # lets the deploy be re-run by hand from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# never let two deploys race; queue instead of cancelling a half-finished one
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+        with:
+          # turn Pages on without anyone visiting the settings page
+          enablement: true
+
+      # The site is plain HTML/CSS/JS with no build step, so "building" is just
+      # copying the site and leaving the working files behind. Publishing
+      # _design/ would put the rejected design directions and the old stylesheet
+      # on a public URL, which is not what that folder is for.
+      - name: Assemble the publishable site
+        run: |
+          mkdir -p _site
+          rsync -a \
+            --exclude '.git*' \
+            --exclude '_site/' \
+            --exclude '_design/' \
+            --exclude 'tools/' \
+            --exclude 'server.js' \
+            --exclude 'README.md' \
+            ./ _site/
+          # stop Pages running the files through Jekyll
+          touch _site/.nojekyll
+          echo "Publishing:"
+          find _site -type f | sort
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
