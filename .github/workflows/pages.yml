@@ -3,21 +3,35 @@
 #
 #   https://josebanzuma1-cell.github.io/UTRAIN-DRIVING-SCHOOL/
 #
-# "Configure Pages" runs with enablement: true, which turns Pages on through
-# the API on the first run. If that step fails with a permissions error, set it
-# by hand once — Settings > Pages > Source > GitHub Actions — and re-run the
-# workflow from the Actions tab. The source MUST be "GitHub Actions" and not
-# "Deploy from a branch": with the branch source winning, deploy-pages fails
-# with "Pages site configured to build from branch".
+# ---------------------------------------------------------------------------
+# GitHub Pages has to be switched on once, by hand, before this can publish:
 #
-# This runs alongside deploy-hostinger.yml. The two are independent — one
-# publishes a preview on github.io, the other uploads to the real host — and
-# neither waits on the other.
+#     Settings > Pages > Source > GitHub Actions
+#
+# That cannot be done from a workflow. actions/configure-pages has an
+# "enablement: true" input that is meant to turn Pages on through the API, and
+# it was tried here first — the repository's GITHUB_TOKEN is not permitted to
+# make that call, so the step failed and the whole run went red.
+#
+# So this workflow checks first and, if Pages is off, finishes GREEN having
+# published nothing and leaves the instructions in the run summary. Same
+# approach as deploy-hostinger.yml, which stays inert until its secrets exist:
+# a workflow that is not configured yet should not look like a broken one.
+#
+# Once Pages is switched on, re-run this from the Actions tab — or just push.
+# The source must be "GitHub Actions", not "Deploy from a branch": with the
+# branch source winning, deploy-pages fails with "Pages site configured to
+# build from branch".
+# ---------------------------------------------------------------------------
 #
 # Pages serves the site from a sub-path (/UTRAIN-DRIVING-SCHOOL/), which works
 # only because every src and href in the site is relative. Keep it that way:
 # a single leading slash on an asset path will break the preview while looking
 # perfectly fine on the real domain.
+#
+# This runs alongside deploy-hostinger.yml. The two are independent — one
+# publishes a preview on github.io, the other uploads to the real host — and
+# neither waits on the other.
 name: Deploy to GitHub Pages
 
 on:
@@ -43,20 +57,54 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # The /pages endpoint answers 200 once Pages is enabled and 404 while it
+      # is not, which is the cleanest signal available to a workflow.
+      - name: Is Pages switched on?
+        id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages")
+
+          if [ "$code" = "200" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            echo "Pages is enabled; publishing."
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Pages is not enabled (HTTP $code); nothing was published."
+            {
+              echo "### GitHub Pages is not switched on yet"
+              echo ""
+              echo "Nothing was published, and that is why this run is green"
+              echo "rather than red. To turn it on, once:"
+              echo ""
+              echo "1. **Settings → Pages**"
+              echo "2. Set **Source** to **GitHub Actions**"
+              echo "3. Re-run this workflow from the Actions tab"
+              echo ""
+              echo "The site then publishes to"
+              echo "<https://josebanzuma1-cell.github.io/UTRAIN-DRIVING-SCHOOL/>"
+              echo "on every push to \`main\`."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Check out the repository
+        if: steps.gate.outputs.ready == 'true'
         uses: actions/checkout@v4
 
       - name: Configure Pages
+        if: steps.gate.outputs.ready == 'true'
         uses: actions/configure-pages@v5
-        with:
-          # turn Pages on without anyone visiting the settings page
-          enablement: true
 
       # The site is plain HTML/CSS/JS with no build step, so "building" is just
       # copying the site and leaving the working files behind. Publishing
       # _design/ would put the rejected design directions and the old stylesheet
       # on a public URL, which is not what that folder is for.
       - name: Assemble the publishable site
+        if: steps.gate.outputs.ready == 'true'
         run: |
           mkdir -p _site
           rsync -a \
@@ -73,10 +121,12 @@ jobs:
           find _site -type f | sort
 
       - name: Upload the site
+        if: steps.gate.outputs.ready == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
       - name: Deploy
         id: deployment
+        if: steps.gate.outputs.ready == 'true'
         uses: actions/deploy-pages@v4

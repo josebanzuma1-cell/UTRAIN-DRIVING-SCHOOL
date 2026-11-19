@@ -159,10 +159,20 @@ is ready. Pages serves from a sub-path, which works only because every `src`
 and `href` in the site is relative — **a single leading slash on an asset path
 will break the preview while looking fine on the real domain.**
 
-The workflow turns Pages on by itself on its first run. If that step fails on
-permissions, set it by hand once under **Settings → Pages → Source → GitHub
-Actions**, then re-run the workflow from the Actions tab. The source must be
-"GitHub Actions", not "Deploy from a branch".
+**Pages has to be switched on once, by hand, before this publishes anything:**
+
+> **Settings → Pages → Source → GitHub Actions**
+
+A workflow cannot do it. `actions/configure-pages` has an `enablement: true`
+input meant for exactly this, and it was tried first — the repository's
+`GITHUB_TOKEN` is not permitted to make that call, so the step failed.
+
+So the workflow checks first and, if Pages is off, finishes **green** having
+published nothing and leaves the instructions in the run summary — the same
+approach as the Hostinger workflow, which stays inert until its secrets exist.
+Once Pages is on, re-run it from the Actions tab or just push again.
+
+The source must be "GitHub Actions", not "Deploy from a branch".
 
 `_design/`, `tools/`, `server.js` and this README are left out of what gets
 published.
