@@ -159,20 +159,25 @@ is ready. Pages serves from a sub-path, which works only because every `src`
 and `href` in the site is relative — **a single leading slash on an asset path
 will break the preview while looking fine on the real domain.**
 
-**Pages has to be switched on once, by hand, before this publishes anything:**
+Pages is **switched on** for this repository, with the source set to GitHub
+Actions, so every push to `main` publishes. Nothing further is needed.
 
-> **Settings → Pages → Source → GitHub Actions**
+It had to be turned on by hand, once, under **Settings → Pages → Source →
+GitHub Actions** — a workflow cannot do it. `actions/configure-pages` has an
+`enablement: true` input meant for exactly this, and it was tried first: this
+account's `GITHUB_TOKEN` is not permitted to make that call, so the step
+failed and took the run with it.
 
-A workflow cannot do it. `actions/configure-pages` has an `enablement: true`
-input meant for exactly this, and it was tried first — the repository's
-`GITHUB_TOKEN` is not permitted to make that call, so the step failed.
+The workflow therefore checks `GET /repos/{repo}/pages` before doing anything
+and, if Pages is ever off, finishes **green** having published nothing and
+leaves the instructions in the run summary — the same approach as the
+Hostinger workflow, which stays inert until its secrets exist. Worth keeping
+if this is copied to another school site, because the next repository will
+start out with Pages off.
 
-So the workflow checks first and, if Pages is off, finishes **green** having
-published nothing and leaves the instructions in the run summary — the same
-approach as the Hostinger workflow, which stays inert until its secrets exist.
-Once Pages is on, re-run it from the Actions tab or just push again.
-
-The source must be "GitHub Actions", not "Deploy from a branch".
+The source must stay "GitHub Actions", not "Deploy from a branch": with the
+branch source winning, `deploy-pages` fails with *"Pages site configured to
+build from branch"*.
 
 `_design/`, `tools/`, `server.js` and this README are left out of what gets
 published.
