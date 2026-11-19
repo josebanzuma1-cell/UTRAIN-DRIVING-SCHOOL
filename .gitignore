@@ -1,0 +1,13 @@
+# OS and editor noise
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+*~
+
+# local archives and dependencies — the site itself is plain static files
+*.zip
+node_modules/
+
+# anything the local preview server writes
+.cache/

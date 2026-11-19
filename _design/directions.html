@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>U-Train — four design directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=Inter:wght@200;300;400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ======================================================================
+   The board itself — deliberately neutral so the four directions
+   are judged against each other, not against the page around them.
+   ====================================================================== */
+*,*::before,*::after{box-sizing:border-box}
+*{margin:0}
+body{
+  background:#0C0D10;color:#E8E9EC;
+  font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+.wrap{max-width:1360px;margin-inline:auto;padding-inline:clamp(18px,4vw,48px)}
+
+.board-head{padding:clamp(48px,8vw,104px) 0 clamp(32px,5vw,56px);border-bottom:1px solid #22242B}
+.kicker{
+  font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.22em;
+  text-transform:uppercase;color:#8A8F9C;margin-bottom:1.4rem;display:block;
+}
+.board-head h1{
+  font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.035em;
+  font-size:clamp(2.2rem,5vw,3.9rem);line-height:1.02;max-width:17ch;
+}
+.board-head p{color:#9BA1AE;max-width:62ch;margin-top:1.3rem;font-size:1.03rem}
+.board-head .note{
+  margin-top:2rem;padding:1.1rem 1.3rem;border-left:3px solid #E0151D;
+  background:#15171C;border-radius:0 10px 10px 0;font-size:.95rem;color:#C6CAD4;max-width:70ch;
+}
+
+/* direction shell ---------------------------------------------------- */
+.dir{padding-block:clamp(44px,6vw,86px);border-bottom:1px solid #22242B}
+.dir__head{display:flex;flex-wrap:wrap;gap:clamp(18px,3vw,44px);align-items:flex-end;margin-bottom:28px}
+.dir__no{
+  font-family:'IBM Plex Mono',monospace;font-size:.8rem;letter-spacing:.2em;color:#60656F;
+  border:1px solid #2C2F38;border-radius:999px;padding:.34rem .8rem;align-self:flex-start;
+}
+.dir__title{flex:1;min-width:260px}
+.dir__title h2{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(1.6rem,3vw,2.4rem);letter-spacing:-.03em;line-height:1.05}
+.dir__title p{color:#9BA1AE;margin-top:.5rem;max-width:56ch;font-size:.97rem}
+.verdict{
+  font-size:.78rem;font-weight:600;letter-spacing:.04em;padding:.4rem .8rem;border-radius:999px;
+  border:1px solid #2C2F38;color:#9BA1AE;white-space:nowrap;
+}
+.verdict--pick{background:rgba(25,179,107,.14);border-color:rgba(25,179,107,.4);color:#5BE3A4}
+.verdict--photo{background:rgba(255,192,46,.12);border-color:rgba(255,192,46,.34);color:#FFC02E}
+
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#22242B;border:1px solid #22242B;border-radius:12px;overflow:hidden;margin-bottom:26px}
+.facts div{background:#121419;padding:.9rem 1.05rem}
+.facts dt{font-family:'IBM Plex Mono',monospace;font-size:.66rem;letter-spacing:.17em;text-transform:uppercase;color:#6B7180}
+.facts dd{font-size:.88rem;margin-top:.35rem;color:#D4D8E0;line-height:1.4}
+
+/* the mockup frame --------------------------------------------------- */
+.stage{
+  border-radius:16px;overflow:hidden;border:1px solid #2C2F38;
+  box-shadow:0 40px 80px -40px rgba(0,0,0,.9);
+}
+.stage__bar{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;background:#191C22;border-bottom:1px solid #2C2F38;
+}
+.stage__bar i{width:10px;height:10px;border-radius:50%;background:#3A3E48;display:block}
+.stage__bar span{
+  font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:#6B7180;margin-left:10px;
+}
+.mock{position:relative;overflow:hidden}
+
+/* shared mock helpers */
+.mock .ph{position:relative;overflow:hidden;background:#15171C}
+.mock .ph::after{
+  content:attr(data-ph);position:absolute;left:12px;bottom:10px;z-index:5;
+  font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.52);background:rgba(0,0,0,.42);padding:.24rem .5rem;border-radius:4px;
+  backdrop-filter:blur(4px);
+}
+
+/* ======================================================================
+   01 — NIGHT SHIFT
+   ====================================================================== */
+.d1{background:#07090D;color:#F2F0EC;font-family:'Inter',sans-serif}
+.d1 .nav{display:flex;align-items:center;justify-content:space-between;padding:22px clamp(20px,4vw,52px);border-bottom:1px solid rgba(255,255,255,.08)}
+.d1 .logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1rem;letter-spacing:.02em}
+.d1 .logo b{color:#E0151D}
+.d1 .nav ul{display:flex;gap:30px;list-style:none;padding:0;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(242,240,236,.6)}
+.d1 .nav .cta{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;border:1px solid rgba(255,255,255,.3);padding:.6rem 1.1rem;border-radius:0}
+.d1 .hero{position:relative;min-height:440px;display:flex;align-items:flex-end;padding:clamp(28px,5vw,58px)}
+.d1 .hero .ph{position:absolute;inset:0;
+  background:
+    radial-gradient(900px 300px at 72% 42%,rgba(255,228,170,.34),transparent 62%),
+    radial-gradient(500px 220px at 20% 76%,rgba(224,21,29,.22),transparent 68%),
+    linear-gradient(180deg,#0B1016 0%,#121A24 38%,#07090D 100%);
+}
+.d1 .hero .ph i{position:absolute;left:0;right:0;bottom:0;height:52%;
+  background:
+    linear-gradient(103deg,transparent 47.4%,rgba(255,255,255,.22) 47.8%,rgba(255,255,255,.22) 48.6%,transparent 49%),
+    linear-gradient(77deg,transparent 51%,rgba(255,255,255,.22) 51.4%,rgba(255,255,255,.22) 52.2%,transparent 52.6%),
+    linear-gradient(180deg,transparent,rgba(0,0,0,.72));
+}
+.d1 .hero__in{position:relative;z-index:3;max-width:760px}
+.d1 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;color:rgba(242,240,236,.56);display:block;margin-bottom:1.5rem}
+.d1 h1{font-weight:200;font-size:clamp(2.3rem,5.6vw,4.4rem);line-height:1.02;letter-spacing:-.035em}
+.d1 h1 em{font-style:normal;font-weight:500}
+.d1 .hero p{color:rgba(242,240,236,.62);max-width:44ch;margin-top:1.5rem;font-size:1rem;font-weight:300}
+.d1 .btns{display:flex;gap:14px;margin-top:2.2rem;align-items:center}
+.d1 .b1{background:#E0151D;color:#fff;padding:.9rem 1.6rem;font-size:.76rem;letter-spacing:.17em;text-transform:uppercase;font-weight:600}
+.d1 .b2{border:1px solid rgba(255,255,255,.3);padding:.9rem 1.6rem;font-size:.76rem;letter-spacing:.17em;text-transform:uppercase;color:rgba(242,240,236,.86)}
+.d1 .index{padding:clamp(28px,5vw,58px);border-top:1px solid rgba(255,255,255,.08)}
+.d1 .index h3{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;color:rgba(242,240,236,.46);font-weight:400;margin-bottom:1.6rem}
+.d1 .index ol{list-style:none;padding:0}
+.d1 .index li{display:grid;grid-template-columns:62px 1fr auto;gap:20px;align-items:baseline;padding:1.05rem 0;border-top:1px solid rgba(255,255,255,.09)}
+.d1 .index li span{font-family:'IBM Plex Mono',monospace;font-size:.76rem;color:rgba(242,240,236,.4)}
+.d1 .index li strong{font-weight:300;font-size:clamp(1.1rem,2.1vw,1.7rem);letter-spacing:-.02em}
+.d1 .index li em{font-style:normal;font-size:.8rem;color:rgba(242,240,236,.42)}
+
+/* ======================================================================
+   02 — ROAD SIGNS
+   ====================================================================== */
+.d2{background:#F2F3F6;color:#0A1430;font-family:'Inter',sans-serif}
+.d2 .nav{display:flex;align-items:center;justify-content:space-between;padding:16px clamp(20px,4vw,44px);background:#0B2B6B;color:#fff}
+.d2 .logo{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.5rem;letter-spacing:.01em;text-transform:uppercase}
+.d2 .logo b{color:#FFC02E}
+.d2 .nav ul{display:flex;gap:24px;list-style:none;padding:0;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:1.02rem;letter-spacing:.06em;text-transform:uppercase}
+.d2 .nav .cta{background:#D81F26;padding:.5rem 1.1rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.07em;text-transform:uppercase;font-size:1.02rem}
+.d2 .hazard{height:12px;background:repeating-linear-gradient(135deg,#FFC02E 0 18px,#0A1430 18px 36px)}
+.d2 .hero{display:grid;grid-template-columns:1.35fr .65fr;min-height:380px}
+.d2 .hero__l{background:#0B2B6B;color:#fff;padding:clamp(26px,4vw,52px);display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.d2 .hero__l::after{content:"";position:absolute;right:-60px;top:50%;width:190px;height:190px;transform:translateY(-50%) rotate(45deg);background:#D81F26;opacity:.5}
+.d2 .tagsign{display:inline-flex;align-self:flex-start;align-items:center;gap:9px;background:#FFC02E;color:#0A1430;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:.3rem .85rem;font-size:1rem;margin-bottom:1.5rem;clip-path:polygon(0 0,calc(100% - 13px) 0,100% 50%,calc(100% - 13px) 100%,0 100%);padding-right:1.5rem}
+.d2 h1{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:clamp(2.6rem,6.4vw,5rem);line-height:.92;letter-spacing:.005em;position:relative;z-index:2}
+.d2 h1 u{text-decoration:none;color:#FFC02E}
+.d2 .hero__l p{color:rgba(255,255,255,.76);max-width:40ch;margin-top:1.2rem;font-size:.97rem;position:relative;z-index:2}
+.d2 .btns{display:flex;gap:12px;margin-top:2rem;position:relative;z-index:2}
+.d2 .b1{background:#D81F26;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:1.14rem;padding:.72rem 1.5rem}
+.d2 .b2{border:2px solid rgba(255,255,255,.45);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:1.14rem;padding:.72rem 1.5rem}
+.d2 .hero__r{background:#D81F26;display:grid;place-items:center;position:relative;overflow:hidden}
+.d2 .lplate{background:#fff;width:148px;height:148px;border-radius:14px;display:grid;place-items:center;box-shadow:0 20px 50px -14px rgba(0,0,0,.5);transform:rotate(-5deg)}
+.d2 .lplate span{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:6.6rem;line-height:1;color:#D81F26}
+.d2 .hero__r::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 46px,rgba(255,255,255,.1) 46px 48px)}
+.d2 .signs{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:4px solid #0A1430}
+.d2 .sign{padding:clamp(18px,2.6vw,30px);border-right:2px solid rgba(10,20,48,.12);background:#fff}
+.d2 .sign:last-child{border-right:0}
+.d2 .sign .ico{width:46px;height:46px;display:grid;place-items:center;background:#0B2B6B;color:#fff;margin-bottom:1rem;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.d2 .sign .ico svg{width:20px;height:20px}
+.d2 .sign h4{font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:1.32rem;letter-spacing:.03em;line-height:1.05}
+.d2 .sign p{font-size:.84rem;color:#4A5878;margin-top:.4rem;line-height:1.45}
+.d2 .sign:nth-child(2) .ico{background:#D81F26}
+.d2 .sign:nth-child(3) .ico{background:#FFC02E;color:#0A1430}
+.d2 .sign:nth-child(4) .ico{background:#19B36B}
+
+/* ======================================================================
+   03 — OPEN ROAD
+   ====================================================================== */
+.d3{background:#FAF8F5;color:#131416;font-family:'Inter',sans-serif}
+.d3 .nav{display:flex;align-items:center;justify-content:space-between;padding:24px clamp(22px,4vw,56px)}
+.d3 .logo{font-family:'Instrument Serif',serif;font-size:1.46rem;letter-spacing:-.01em}
+.d3 .logo b{color:#C8101B;font-weight:400}
+.d3 .nav ul{display:flex;gap:30px;list-style:none;padding:0;font-size:.9rem;color:#5B6069}
+.d3 .nav .cta{background:#131416;color:#FAF8F5;padding:.62rem 1.3rem;border-radius:999px;font-size:.86rem;font-weight:500}
+.d3 .hero{display:grid;grid-template-columns:1.02fr .98fr;gap:clamp(24px,4vw,60px);padding:clamp(26px,4vw,64px);align-items:center;min-height:420px}
+.d3 .eyebrow{font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:#9A8F7E;display:block;margin-bottom:1.5rem}
+.d3 h1{font-family:'Instrument Serif',serif;font-weight:400;font-size:clamp(2.5rem,5.6vw,4.3rem);line-height:1.02;letter-spacing:-.018em}
+.d3 h1 em{font-style:italic;color:#C8101B}
+.d3 .hero p{color:#5B6069;max-width:42ch;margin-top:1.4rem;font-size:1.02rem}
+.d3 .btns{display:flex;gap:14px;margin-top:2.1rem;align-items:center}
+.d3 .b1{background:#C8101B;color:#fff;padding:.88rem 1.7rem;border-radius:999px;font-size:.93rem;font-weight:550}
+.d3 .b2{color:#131416;font-size:.93rem;font-weight:550;border-bottom:1px solid #D3CCC0;padding-bottom:3px}
+.d3 .heroimg{position:relative}
+.d3 .heroimg .ph{height:330px;border-radius:200px 200px 18px 18px;
+  background:
+    radial-gradient(260px 190px at 50% 26%,rgba(255,255,255,.5),transparent 70%),
+    linear-gradient(170deg,#D9C9AF 0%,#B79C77 46%,#6E5E49 100%);
+}
+.d3 .stat{position:absolute;left:-14px;bottom:72px;background:#fff;border-radius:14px;padding:.95rem 1.2rem;box-shadow:0 20px 44px -20px rgba(0,0,0,.3)}
+.d3 .stat b{font-family:'Instrument Serif',serif;font-size:1.9rem;display:block;line-height:1}
+.d3 .stat span{font-size:.74rem;color:#7B8089;letter-spacing:.04em}
+.d3 .rail{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,3vw,48px);padding:clamp(24px,4vw,56px);border-top:1px solid #E6E0D6}
+.d3 .rail .n{font-family:'Instrument Serif',serif;font-size:2.5rem;color:#C8101B;line-height:1}
+.d3 .rail h4{font-size:1.06rem;font-weight:600;margin:.7rem 0 .4rem;letter-spacing:-.01em}
+.d3 .rail p{font-size:.9rem;color:#5B6069;line-height:1.55}
+
+/* ======================================================================
+   04 — DASHBOARD
+   ====================================================================== */
+.d4{background:#0F1217;color:#E6EAF2;font-family:'Inter',sans-serif}
+.d4 .nav{display:flex;align-items:center;justify-content:space-between;padding:16px clamp(20px,4vw,46px);border-bottom:1px solid #222733;background:#131722}
+.d4 .logo{font-family:'Sora',sans-serif;font-weight:800;font-size:1rem}
+.d4 .logo b{color:#E0151D}
+.d4 .nav ul{display:flex;gap:22px;list-style:none;padding:0;font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:#7D869A}
+.d4 .nav .cta{background:#C6F24E;color:#121620;padding:.5rem 1.05rem;border-radius:6px;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase}
+.d4 .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(20px,3vw,40px);padding:clamp(24px,4vw,48px);align-items:center;min-height:400px;
+  background:radial-gradient(700px 320px at 78% 40%,rgba(198,242,78,.07),transparent 65%)}
+.d4 .tag{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:#C6F24E;border:1px solid rgba(198,242,78,.3);border-radius:5px;padding:.34rem .7rem;margin-bottom:1.4rem}
+.d4 .tag i{width:6px;height:6px;border-radius:50%;background:#C6F24E;display:block}
+.d4 h1{font-family:'Sora',sans-serif;font-weight:700;font-size:clamp(2.1rem,4.6vw,3.5rem);line-height:1.04;letter-spacing:-.034em}
+.d4 .hero p{color:#8B94A8;max-width:42ch;margin-top:1.2rem;font-size:.98rem}
+.d4 .btns{display:flex;gap:12px;margin-top:2rem}
+.d4 .b1{background:#C6F24E;color:#121620;padding:.8rem 1.4rem;border-radius:7px;font-weight:650;font-size:.9rem}
+.d4 .b2{border:1px solid #2B313F;padding:.8rem 1.4rem;border-radius:7px;font-size:.9rem;color:#C2C9D8}
+.d4 .cluster{background:#141926;border:1px solid #242B3A;border-radius:16px;padding:clamp(18px,2.4vw,26px)}
+.d4 .gauge{display:grid;place-items:center;position:relative;margin-bottom:18px}
+.d4 .gauge svg{width:100%;max-width:230px;height:auto}
+.d4 .gauge__v{position:absolute;top:56%;text-align:center}
+.d4 .gauge__v b{font-family:'Sora',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-.03em;display:block;line-height:1}
+.d4 .gauge__v span{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:#7D869A}
+.d4 .rows{display:grid;gap:1px;background:#242B3A;border:1px solid #242B3A;border-radius:10px;overflow:hidden}
+.d4 .row{display:flex;justify-content:space-between;align-items:center;background:#111624;padding:.7rem .95rem;font-size:.84rem}
+.d4 .row span{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;color:#7D869A}
+.d4 .row b{font-weight:600;font-variant-numeric:tabular-nums}
+.d4 .row b.ok{color:#C6F24E}
+.d4 .panels{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:0 clamp(24px,4vw,48px) clamp(24px,4vw,48px)}
+.d4 .panel{background:#141926;border:1px solid #242B3A;border-radius:12px;padding:1.05rem}
+.d4 .panel span{font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:#7D869A}
+.d4 .panel b{display:block;font-family:'Sora',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:-.03em;margin-top:.45rem}
+.d4 .panel i{display:block;font-style:normal;font-size:.8rem;color:#8B94A8;margin-top:.25rem}
+
+/* ====================================================================== */
+.closing{padding:clamp(48px,7vw,96px) 0 clamp(60px,9vw,120px)}
+.closing h2{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(1.7rem,3.4vw,2.6rem);letter-spacing:-.03em;margin-bottom:1.2rem}
+.closing p{color:#9BA1AE;max-width:68ch;margin-bottom:1rem}
+.closing ul{margin:1.2rem 0 0;padding-left:1.1rem;color:#9BA1AE}
+.closing li{margin-bottom:.6rem}
+.closing b{color:#E8E9EC}
+
+@media (max-width:1000px){
+  .facts{grid-template-columns:repeat(2,1fr)}
+  .d2 .signs,.d4 .panels{grid-template-columns:repeat(2,1fr)}
+  .d3 .rail{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .d1 .nav ul,.d2 .nav ul,.d3 .nav ul,.d4 .nav ul{display:none}
+  .d2 .hero,.d3 .hero,.d4 .hero{grid-template-columns:1fr}
+  .d2 .hero__r{min-height:180px}
+  .facts{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="board-head">
+  <div class="wrap">
+    <span class="kicker">U-Train Driving School · art direction</span>
+    <h1>Four ways this site could look.</h1>
+    <p>Each panel below is real, working markup at full size — not a picture of an idea. The nav, headline, buttons and one content section are rendered in that direction's own type, colour and layout, using U-Train's actual words. Scroll through, then tell me which one to build out.</p>
+    <div class="note"><b>The honest diagnosis first.</b> What I shipped is competent but it is <em>decorated</em> rather than designed: five motifs fighting each other, every section a card grid, heavy type everywhere, and no photography. The directions below each commit to <em>one</em> idea and carry it the whole way. Two of them need real photographs to work; two do not.</div>
+  </div>
+</header>
+
+<!-- ================= 01 ================= -->
+<section class="dir">
+  <div class="wrap">
+    <div class="dir__head">
+      <span class="dir__no">01</span>
+      <div class="dir__title">
+        <h2>Night Shift</h2>
+        <p>Cinematic and quiet. Full-bleed photography of Kampala roads at dusk, hairline-thin type, almost no colour. Borrowed from Porsche Driving, which carries an entire site on one aerial photograph and a light-weight headline.</p>
+      </div>
+      <span class="verdict verdict--photo">Needs real photography</span>
+    </div>
+    <dl class="facts">
+      <div><dt>Palette</dt><dd>Near-black, warm off-white, one signal red</dd></div>
+      <div><dt>Type</dt><dd>Inter 200 at huge sizes · mono labels</dd></div>
+      <div><dt>Layout</dt><dd>Full-bleed, numbered index lists, no cards</dd></div>
+      <div><dt>Risk</dt><dd>Cold for a mass-market school; heavy on mobile data</dd></div>
+    </dl>
+
+    <div class="stage">
+      <div class="stage__bar"><i></i><i></i><i></i><span>01 — night shift</span></div>
+      <div class="mock d1">
+        <nav class="nav">
+          <span class="logo"><b>U</b>-TRAIN</span>
+          <ul><li>Courses</li><li>Permits</li><li>Branches</li><li>About</li></ul>
+          <span class="cta">Register</span>
+        </nav>
+        <div class="hero">
+          <div class="ph" data-ph="Photo — dusk, headlights, Kampala road"><i></i></div>
+          <div class="hero__in">
+            <span class="eyebrow">Kampala · est. driving school</span>
+            <h1>Anyone can pass a test.<br><em>Few learn to drive.</em></h1>
+            <p>Practical road training, free theory and the full permit — across five branches, seven days a week.</p>
+            <div class="btns"><span class="b1">Book a free lesson</span><span class="b2">See courses</span></div>
+          </div>
+        </div>
+        <div class="index">
+          <h3>What we teach</h3>
+          <ol>
+            <li><span>01</span><strong>Practical road training</strong><em>Jinja Rd · Kireka hill · night</em></li>
+            <li><span>02</span><strong>Defensive driving</strong><em>Anticipation · space · escape</em></li>
+            <li><span>03</span><strong>Permit processing</strong><em>Application to collection</em></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 02 ================= -->
+<section class="dir">
+  <div class="wrap">
+    <div class="dir__head">
+      <span class="dir__no">02</span>
+      <div class="dir__title">
+        <h2>Road Signs</h2>
+        <p>Built entirely from the language of the road: signage type, chevrons, hazard tape, the L-plate, diamond warning shapes. A graphic system rather than a decorated one — and nothing else in this category looks remotely like it.</p>
+      </div>
+      <span class="verdict verdict--pick">My pick · works with no photos</span>
+    </div>
+    <dl class="facts">
+      <div><dt>Palette</dt><dd>Sign navy, signal red, hi-vis amber, white</dd></div>
+      <div><dt>Type</dt><dd>Barlow Condensed 800 caps · Inter for body</dd></div>
+      <div><dt>Layout</dt><dd>Hard colour blocks, sign tiles, no rounded cards</dd></div>
+      <div><dt>Risk</dt><dd>Goes childish if the amber is overused</dd></div>
+    </dl>
+
+    <div class="stage">
+      <div class="stage__bar"><i></i><i></i><i></i><span>02 — road signs</span></div>
+      <div class="mock d2">
+        <nav class="nav">
+          <span class="logo"><b>U</b>-Train</span>
+          <ul><li>Courses</li><li>Permits</li><li>Branches</li><li>About</li></ul>
+          <span class="cta">Register</span>
+        </nav>
+        <div class="hazard"></div>
+        <div class="hero">
+          <div class="hero__l">
+            <span class="tagsign">First lesson free</span>
+            <h1>Learn well.<br><u>Go well.</u></h1>
+            <p>Practical road training, free theory classes and the whole permit handled — five branches across Kampala, open every day.</p>
+            <div class="btns"><span class="b1">Book free lesson</span><span class="b2">See courses</span></div>
+          </div>
+          <div class="hero__r"><div class="lplate"><span>L</span></div></div>
+        </div>
+        <div class="signs">
+          <div class="sign">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 4v8"/></svg></div>
+            <h4>Road training</h4><p>Real traffic, from quiet streets to the busiest junctions.</p>
+          </div>
+          <div class="sign">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 18V6h4a3.5 3.5 0 0 1 0 7H9"/></svg></div>
+            <h4>Parking</h4><p>Parallel, bay and hill — drilled until automatic.</p>
+          </div>
+          <div class="sign">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 14.2A8.5 8.5 0 0 1 9.8 4a8.5 8.5 0 1 0 10.2 10.2Z"/></svg></div>
+            <h4>Night driving</h4><p>Glare, distance and unlit road users, after dark.</p>
+          </div>
+          <div class="sign">
+            <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg></div>
+            <h4>Permits</h4><p>Processing, renewal and class extensions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 03 ================= -->
+<section class="dir">
+  <div class="wrap">
+    <div class="dir__head">
+      <span class="dir__no">03</span>
+      <div class="dir__title">
+        <h2>Open Road</h2>
+        <p>Light, warm and editorial. Enormous white space, a serif headline, photography in soft organic shapes. The "excellent local business" look — closest to RED Driving School, but calmer and far less cluttered.</p>
+      </div>
+      <span class="verdict verdict--photo">Needs real photography</span>
+    </div>
+    <dl class="facts">
+      <div><dt>Palette</dt><dd>Warm white, ink, sand, one deep red</dd></div>
+      <div><dt>Type</dt><dd>Instrument Serif headlines · Inter body</dd></div>
+      <div><dt>Layout</dt><dd>Wide margins, asymmetric two-column, thin rules</dd></div>
+      <div><dt>Risk</dt><dd>Least distinctive — safe rather than memorable</dd></div>
+    </dl>
+
+    <div class="stage">
+      <div class="stage__bar"><i></i><i></i><i></i><span>03 — open road</span></div>
+      <div class="mock d3">
+        <nav class="nav">
+          <span class="logo"><b>U</b>-Train</span>
+          <ul><li>Courses</li><li>Permits</li><li>Branches</li><li>About</li></ul>
+          <span class="cta">Register</span>
+        </nav>
+        <div class="hero">
+          <div>
+            <span class="eyebrow">Driving school · Kampala</span>
+            <h1>Learn well.<br><em>Go well.</em></h1>
+            <p>Practical road training, free theory classes and the whole permit process handled for you. Five branches, open every day of the week.</p>
+            <div class="btns"><span class="b1">Book your free lesson</span><span class="b2">See the courses →</span></div>
+          </div>
+          <div class="heroimg">
+            <div class="ph" data-ph="Photo — learner at the wheel, warm light"></div>
+            <div class="stat"><b>5</b><span>branches in Kampala</span></div>
+          </div>
+        </div>
+        <div class="rail">
+          <div><div class="n">01</div><h4>Register</h4><p>Bring an ID and two photographs. Your first lesson that day is free.</p></div>
+          <div><div class="n">02</div><h4>Learn</h4><p>Free theory runs alongside practical lessons, at the times that suit you.</p></div>
+          <div><div class="n">03</div><h4>Drive</h4><p>We process the permit and hand it to you. Come back any time.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 04 ================= -->
+<section class="dir">
+  <div class="wrap">
+    <div class="dir__head">
+      <span class="dir__no">04</span>
+      <div class="dir__title">
+        <h2>Instrument</h2>
+        <p>The inside of the car rather than the outside. Gauges, telemetry rows, monospace labels, tabular numbers. Your progress to a permit shown as a dial. Modern and technical — and it makes the free-lesson offer feel like a readout rather than a flyer.</p>
+      </div>
+      <span class="verdict">Works with no photos</span>
+    </div>
+    <dl class="facts">
+      <div><dt>Palette</dt><dd>Charcoal panels, electric lime readout, red alert</dd></div>
+      <div><dt>Type</dt><dd>Sora headlines · IBM Plex Mono labels</dd></div>
+      <div><dt>Layout</dt><dd>Instrument cluster, panel grid, tabular numerals</dd></div>
+      <div><dt>Risk</dt><dd>Can read as a fintech dashboard, not a driving school</dd></div>
+    </dl>
+
+    <div class="stage">
+      <div class="stage__bar"><i></i><i></i><i></i><span>04 — instrument</span></div>
+      <div class="mock d4">
+        <nav class="nav">
+          <span class="logo"><b>U</b>-Train</span>
+          <ul><li>Courses</li><li>Permits</li><li>Branches</li><li>About</li></ul>
+          <span class="cta">Register</span>
+        </nav>
+        <div class="hero">
+          <div>
+            <span class="tag"><i></i>Enrolling · 5 branches live</span>
+            <h1>From first gear to full permit.</h1>
+            <p>Practical road training, free theory classes and permit processing — tracked from the day you register to the day you collect.</p>
+            <div class="btns"><span class="b1">Start free lesson</span><span class="b2">See courses</span></div>
+          </div>
+          <div class="cluster">
+            <div class="gauge">
+              <svg viewBox="0 0 200 128">
+                <path d="M16 116a84 84 0 0 1 168 0" fill="none" stroke="#242B3A" stroke-width="13" stroke-linecap="round"/>
+                <path d="M16 116a84 84 0 0 1 168 0" fill="none" stroke="#C6F24E" stroke-width="13" stroke-linecap="round"
+                      stroke-dasharray="264" stroke-dashoffset="92"/>
+                <g stroke="#3A4254" stroke-width="2" stroke-linecap="round">
+                  <path d="M26 92 34 88M38 66 45 72M66 38 70 46M100 30v9M134 38l-4 8M162 66l-7 6M174 92l-8-4"/>
+                </g>
+              </svg>
+              <div class="gauge__v"><b>65%</b><span>course complete</span></div>
+            </div>
+            <div class="rows">
+              <div class="row"><span>Lessons taken</span><b>14</b></div>
+              <div class="row"><span>Theory classes</span><b class="ok">Free · unlimited</b></div>
+              <div class="row"><span>Permit status</span><b class="ok">Filed</b></div>
+              <div class="row"><span>Next session</span><b>Kireka · 07:00</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="panels">
+          <div class="panel"><span>Branches</span><b>5</b><i>Across Kampala</i></div>
+          <div class="panel"><span>Open</span><b>7/7</b><i>Monday to Sunday</i></div>
+          <div class="panel"><span>Services</span><b>10+</b><i>Courses &amp; permits</i></div>
+          <div class="panel"><span>First lesson</span><b>Free</b><i>On registration</i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="wrap">
+    <h2>What actually makes the difference</h2>
+    <p>Direction is half of it. The other half is <b>photography</b>, and it is the single biggest reason the current site reads as a template. SVG cars and gradients can only ever look like SVG cars and gradients.</p>
+    <ul>
+      <li><b>Six photographs would carry the whole site:</b> a learner's hands on the wheel, an instructor talking through a junction, a marked car on a real Kampala road, a theory class, one branch front, one portrait of a learner holding a permit.</li>
+      <li><b>Shot on a decent phone in good light,</b> early morning or late afternoon, they beat any stock library — because they are visibly Kampala and visibly you.</li>
+      <li><b>Directions 02 and 04 do not need them</b> and can ship as they are. <b>01 and 03 depend on them</b> and should not be built until the photographs exist.</li>
+    </ul>
+    <p style="margin-top:1.4rem">Tell me the number and I will rebuild the whole site in it — all seven pages, not just the home page.</p>
+  </div>
+</section>
+
+</body>
+</html>

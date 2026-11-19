@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="U-Train Driving School">
+  <title>U-Train Driving School</title>
+  <!-- The "U" doubles as a road: the dashed lane line runs down its centre. -->
+  <path d="M17.5 12.5v20.5a14.5 14.5 0 0 0 29 0V12.5"
+        fill="none" stroke="#E0151D" stroke-width="9" stroke-linecap="round"/>
+  <path d="M32 26.5v22" fill="none" stroke="#123A8F" stroke-width="4.2"
+        stroke-linecap="round" stroke-dasharray="0.1 9.2"/>
+  <circle cx="32" cy="54.5" r="3.4" fill="#E0151D"/>
+</svg>
