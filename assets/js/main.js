@@ -117,33 +117,184 @@
   /* ---- 6. year stamp ---------------------------------------------------- */
   $$('[data-year]').forEach(function (el) { el.textContent = new Date().getFullYear(); });
 
-  /* ---- 7. enquiry form -> WhatsApp -------------------------------------- */
-  /* The site is static hosting, so there is no mail server behind it.
-     The form composes a tidy WhatsApp message instead — which is how most
-     enquiries actually reach the school anyway. The mailto fallback is
-     offered beside the button in the markup. */
+  /* ---- 7. enquiry forms -------------------------------------------------- */
+  /* Static hosting, so there is no mail server behind the site. Both routes
+     compose the same tidy message out of what the visitor typed: WhatsApp,
+     which is how almost every enquiry actually arrives, and email as the
+     fallback.
+
+     "Email instead" used to be a plain mailto: link carrying nothing but a
+     subject, which failed in two ways. It threw away everything the visitor
+     had just typed, and on any device with no mail app registered as the
+     handler — every desktop using webmail, and plenty of phones — clicking it
+     did nothing at all, silently.
+
+     So the email route now fills in the whole message, and always prints it
+     on the page afterwards with the address and a copy button. A mailto: that
+     goes nowhere raises no error and cannot be detected, so the only honest
+     answer is to assume it might have and leave a way through either way. */
+
+  var EMAIL = 'utraindrivingschool@gmail.com';
+
+  function composeMessage(form) {
+    var data = new FormData(form);
+    var title = form.getAttribute('data-wa-title') || 'Enquiry from the U-Train website';
+    var lines = [title, ''];
+
+    $$('[name]', form).forEach(function (input) {
+      if (input.type === 'checkbox' && !input.checked) return;
+      var label = input.getAttribute('data-label') || input.name;
+      var value = input.type === 'checkbox' ? 'Yes' : (data.get(input.name) || '').toString().trim();
+      if (value) lines.push(label + ': ' + value);
+    });
+
+    return { subject: title, body: lines.join('\n') };
+  }
+
+  function setStatus(form, text) {
+    var status = $('[data-form-status]', form);
+    if (!status) return;
+    status.hidden = false;
+    status.textContent = text;
+  }
+
+  /* --- WhatsApp, the primary route --- */
   $$('form[data-wa-form]').forEach(function (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
+      var msg = composeMessage(form);
+      setStatus(form, 'Opening WhatsApp with your details…');
+      window.open(
+        'https://wa.me/' + SCHOOL.whatsapp + '?text=' + encodeURIComponent(msg.body),
+        '_blank', 'noopener'
+      );
+    });
+  });
 
-      var data = new FormData(form);
-      var title = form.getAttribute('data-wa-title') || 'Enquiry from the U-Train website';
-      var lines = [title, ''];
+  /* --- copying, with a path for old browsers and plain http --- */
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
 
-      $$('[name]', form).forEach(function (input) {
-        if (input.type === 'checkbox' && !input.checked) return;
-        var label = input.getAttribute('data-label') || input.name;
-        var value = input.type === 'checkbox' ? 'Yes' : (data.get(input.name) || '').toString().trim();
-        if (value) lines.push(label + ': ' + value);
-      });
-
-      var url = 'https://wa.me/' + SCHOOL.whatsapp + '?text=' + encodeURIComponent(lines.join('\n'));
-      var status = $('[data-form-status]', form);
-      if (status) {
-        status.hidden = false;
-        status.textContent = 'Opening WhatsApp with your details…';
+  function copyText(text, done) {
+    /* The Clipboard API can be present and still refuse — an unfocused
+       document, a permissions policy, Safari being Safari. Falling back to
+       the old execCommand path on rejection rather than giving up is the
+       whole point of having two. */
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        navigator.clipboard.writeText(text).then(
+          function () { done(true); },
+          function () { done(legacyCopy(text)); }
+        );
+        return;
+      } catch (err) {
+        /* some browsers throw synchronously instead of rejecting */
       }
-      window.open(url, '_blank', 'noopener');
+    }
+    done(legacyCopy(text));
+  }
+
+  /* When copying is refused outright, select the text so Ctrl/Cmd+C works. */
+  function selectText(el) {
+    if (!el || !window.getSelection || !document.createRange) return;
+    var range = document.createRange();
+    range.selectNodeContents(el);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  /* --- the panel that catches a mailto: going nowhere --- */
+  function showMailout(form, msg, trigger) {
+    var box = $('[data-mailout]', form);
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'mailout';
+      box.setAttribute('data-mailout', '');
+      var anchor = trigger.closest('.btn-row') || trigger;
+      anchor.parentNode.insertBefore(box, anchor.nextSibling);
+    }
+    box.innerHTML = '';
+
+    var head = document.createElement('p');
+    head.className = 'mailout__head';
+    head.textContent = 'If your mail app did not open, send this to ' + EMAIL;
+    box.appendChild(head);
+
+    var pre = document.createElement('pre');
+    pre.className = 'mailout__text';
+    pre.textContent = msg.body;
+    box.appendChild(pre);
+
+    var row = document.createElement('div');
+    row.className = 'btn-row';
+
+    var copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'btn btn--sm';
+    copy.textContent = 'Copy the message';
+    copy.addEventListener('click', function () {
+      copyText(msg.body, function (ok) {
+        if (ok) {
+          copy.textContent = 'Copied';
+        } else {
+          /* nothing worked — hand them the text already selected */
+          copy.textContent = 'Press Ctrl+C now';
+          selectText(pre);
+        }
+        window.setTimeout(function () { copy.textContent = 'Copy the message'; }, 3000);
+      });
+    });
+    row.appendChild(copy);
+
+    var addr = document.createElement('a');
+    addr.className = 'btn btn--sm btn--ghost';
+    addr.href = 'mailto:' + EMAIL;
+    addr.textContent = EMAIL;
+    row.appendChild(addr);
+
+    box.appendChild(row);
+    return box;
+  }
+
+  /* --- Email, the fallback --- */
+  $$('[data-email-send]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var form = btn.closest('form');
+      if (!form) return;
+
+      // the plain link this replaced skipped the form's own validation
+      if (typeof form.reportValidity === 'function' && !form.reportValidity()) return;
+
+      var msg = composeMessage(form);
+      setStatus(form, 'Opening your mail app…');
+      var box = showMailout(form, msg, btn);
+
+      /* Clicking a real anchor is the gentlest way to hand a mailto: to the
+         system: where there is no handler the browser stays put instead of
+         navigating to an error page. */
+      var a = document.createElement('a');
+      a.href = 'mailto:' + EMAIL +
+        '?subject=' + encodeURIComponent(msg.subject) +
+        '&body=' + encodeURIComponent(msg.body);
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     });
   });
 

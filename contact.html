@@ -325,12 +325,15 @@
           <label for="c-msg">Your message</label>
           <textarea id="c-msg" name="message" data-label="Message" required></textarea>
         </div>
-        <button class="btn btn--lg btn--wa btn--block" type="submit">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2Z"/></svg>
-          Send on WhatsApp
-        </button>
+        <div class="btn-row">
+          <button class="btn btn--lg btn--wa" type="submit">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2Z"/></svg>
+            Send on WhatsApp
+          </button>
+          <button class="btn btn--lg btn--ghost" type="button" data-email-send>Email instead</button>
+        </div>
         <p class="form__note" data-form-status role="status" hidden></p>
-        <p class="form__note">Opens WhatsApp with your message written out. Nothing is stored by this website, and nothing is sent until you press send.</p>
+        <p class="form__note">Either button writes your message out for you. Nothing is stored by this website, and nothing is sent until you press send. If your device has no mail app set up, the email button prints the message here so you can copy it.</p>
       </form>
     </div>
   </div>

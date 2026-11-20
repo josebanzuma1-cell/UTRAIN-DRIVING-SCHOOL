@@ -686,6 +686,30 @@ tbody td:first-child{font-family:var(--font-display);font-weight:700;font-size:1
 .flyer-grid img{border:3px solid var(--ink);width:100%}
 .ratio-card{overflow:hidden;border:3px solid var(--ink);background:#fff}
 
+/* The email fallback. mailto: can silently do nothing on a device with no
+   mail app registered, so the composed message is always printed here too,
+   with the address and a copy button. Placed after the button rules so it
+   wins inside a dark section. */
+.mailout{margin-top:1.1rem;border:3px solid var(--ink);background:var(--amber);padding:1rem 1.1rem}
+.mailout__head{
+  display:flex;gap:.6rem;align-items:flex-start;margin-bottom:.75rem;
+  font-family:var(--font-display);font-weight:700;font-size:1.1rem;
+  letter-spacing:.04em;text-transform:uppercase;line-height:1.1;color:var(--ink);
+  word-break:break-word;
+}
+.mailout__head::before{
+  content:"";width:18px;height:16px;flex:none;margin-top:2px;
+  background:var(--ink);clip-path:polygon(50% 0,100% 100%,0 100%);
+}
+.mailout__text{
+  font-family:var(--font-body);font-size:.87rem;line-height:1.5;color:var(--ink);
+  background:#fff;border:2px solid var(--ink);padding:.8rem .9rem;margin-bottom:.9rem;
+  white-space:pre-wrap;word-break:break-word;max-height:230px;overflow:auto;
+}
+.mailout .btn-row{gap:.6rem}
+.mailout .btn--ghost{--btn-fg:var(--ink);border-color:var(--ink)}
+.mailout .btn--ghost:hover{background:var(--ink);color:var(--amber)}
+
 /* warning-triangle callout */
 .note{position:relative;background:var(--amber);color:var(--ink);padding:1rem 1.2rem 1rem 3.3rem;font-size:.93rem;border:2px solid var(--ink)}
 .note::before{content:"";position:absolute;left:1.05rem;top:1.05rem;width:20px;height:18px;background:var(--ink);clip-path:polygon(50% 0,100% 100%,0 100%)}
